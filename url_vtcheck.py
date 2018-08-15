@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #coding:UTF-8
 
+###############################
+###     Load Modules        ###
+###############################
 import requests
 import json
 from time import sleep
@@ -22,31 +25,34 @@ resultlist = "./resultlist.txt"
 ### read source URL
 sourcefile = open(sourcelist,"r")
 targeturl = sourcefile.readline()
-
 ### write result
 resultfile = open(resultlist,"w+")
 
 ###############################
-###     GET infomation      ###
+###     set var             ###
 ###############################
 i = 0
+sleeptime = 16
 
+###############################
+###     main    program     ###
+###############################
 while targeturl:
     if i != 0:
-        sleep(14)
+        sleep(sleeptime)
     params = {'apikey': apikey, 'resource': targeturl, 'allinfo': additionalinfo}
     response = requests.get(vturl, params=params).json()
     if response['response_code'] == 0:
-        print "NEW!"
-        sleep(14)
-        params = {'apikey': apikey, 'resource': targeturl}
-        response = requests.post(vturl_scan, params)
-        sleep(14)
+        sleep(sleeptime)
+        params = {'apikey': apikey, 'url': targeturl}
+        response = requests.post(vturl_scan, params).json()
+        sleep(sleeptime)
         params = {'apikey': apikey, 'resource': response['scan_id'], 'allinfo': additionalinfo}
-        response = requests.get(vturl, params=params)
-    resultfile.write(str(response) + "¥n")
+        response = requests.get(vturl, params=params).json()
+    resultfile.write(str(response) + "\n")
     targeturl = sourcefile.readline()
-    i = i + 1
+    i += 1
 
 sourcefile.close()
 resultfile.close()
+print "check : " + str(i) + " URLs"
